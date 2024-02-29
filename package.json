@@ -1,6 +1,6 @@
 {
 	"name": "impervious",
-	"version": "0.0.0-next.0",
+	"version": "0.0.0-next.1",
 	"description": "",
 	"type": "module",
 	"main": "./dist/impervious.esm.js",
@@ -39,6 +39,5 @@
 		"typescript": "^5.0.4",
 		"@types/node": "^20.11.17"
 	},
-	"dependencies": {
-	}
+	"dependencies": {}
 }
