@@ -15,17 +15,17 @@ npm install impervious@next
 import * as impervious from 'impervious'
 
 let state = {
-    users: [{ id: 1, name: 'James' }]
+	users: [{ id: 1, name: 'James' }]
 }
 
 state = impervious.update( state, x => {
-    x.users.push({ id: 2, name: 'John' })
+	x.users.push({ id: 2, name: 'John' })
 
-    // will work, but typescript won't be happy :)
-    (state as any).willWork = true
+	// will work, but typescript won't be happy :)
+	(state as any).willWork = true
 
-    // will crash, state.a is undefined
-    state.a.b.c.d = 4
+	// will crash, state.a is undefined
+	state.a.b.c.d = 4
 })
 ```
 
@@ -96,11 +96,11 @@ export type Patch =
 	| { op: 'delete'; prop: string; path: Path }
 	| { op: 'set'; prop: string; path: Path; value: any }
 	| {
-        op: 'method'
-        path: Path
-        thisArg: any
-        args: any[]
-        target(this: any, ...args: any[]): any
+		op: 'method'
+		path: Path
+		thisArg: any
+		args: any[]
+		target(this: any, ...args: any[]): any
 	  }
 
 function recorder<T extends object>(
