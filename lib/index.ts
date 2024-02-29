@@ -159,7 +159,7 @@ function clone(child:any):any{
 		: Array.isArray(child) ? child.slice() : { ...child }
 }
 
-export function applyPatch<T extends object>(patch: Patch, state: T): T {
+export function applyPatch<T extends object>(patch: Patch, state: T, cloneFn=clone): T {
 	let parent = clone(state) as any
 	state = parent
 	let states: any[] = []
@@ -207,7 +207,7 @@ export function applyPatch<T extends object>(patch: Patch, state: T): T {
 	return state
 }
 
-export function applyPatches<T extends object>(patches: Patch[], state: T): T {
+export function applyPatches<T extends object>(patches: Patch[], state: T, cloneFn=clone): T {
 	for (let patch of patches) {
 		state = applyPatch(patch, state)
 	}
@@ -215,9 +215,11 @@ export function applyPatches<T extends object>(patches: Patch[], state: T): T {
 	return state
 }
 
-export function update<T extends object>(state: T, f: (x: T) => void): T {
+export function update<T extends object>(state: T, f: (x: T) => void, options: {
+	clone?: typeof clone
+}={}): T {
 	const { proxy, patches } = recorder(state)
 
 	f(proxy)
-	return applyPatches(patches, state)
+	return applyPatches(patches, state, options.clone)
 }
