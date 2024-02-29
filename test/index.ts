@@ -1,5 +1,4 @@
 import test from 'node:test'
-import assert from 'node:assert'
 import * as p from '../lib/index'
 
 
