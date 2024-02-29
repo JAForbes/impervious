@@ -6,7 +6,7 @@ export type Patch =
 	| { op: 'delete'; prop: string; path: Path }
 	| { op: 'set'; prop: string; path: Path; value: any }
 	| {
-			op: 'method'
+			op: 'arrayMethod'
 			path: Path
 			thisArg: any
 			args: any[]
@@ -101,8 +101,8 @@ export function recorder<T extends object>(
 					return Reflect.apply(target as any, thisArg, argumentsList)
 				} else if ( supportedMutationArrayMethods.has(methodName) ) {
 					patches.push({
-						op: 'method',
-						path,
+						op: 'arrayMethod',
+						path: path.slice(0, -1),
 						args: argumentsList,
 						thisArg,
 						target: target as any,
@@ -149,31 +149,53 @@ export function recorder<T extends object>(
 	return { proxy, patches, path }
 }
 
+function clone(child:any):any{
+	return typeof child === 'function'
+		? child
+		: Array.isArray(child) ? child.slice() : { ...child }
+}
+
 export function applyPatch<T extends object>(patch: Patch, state: T): T {
-	let _state: any = state
-
+	let parent = clone(state) as any
+	state = parent
+	let states: any[] = []
 	for (let op of patch.path) {
-		let next: any = _state[op.value]
+		
+		states.push(parent)
+		let child = parent[op.value]
 
-		if (next == null) {
+		if (child == null) {
 			if (op.value.match(/^\d+$/)) {
-				next = _state[op.value] = []
+				child = []
 			} else {
-				next = _state[op.value] = {}
+				child = {}
 			}
+		} else {
+			child = clone(child)
 		}
-		_state = next
+
+		parent[op.value] = child
+
+
+		// now make the parent the child
+		// so next loop we traverse down
+		parent = child
 	}
 
 	if (patch.op === 'set') {
-		_state[patch.prop] = patch.value
+		parent[patch.prop] = patch.value
 	}
 	if (patch.op === 'delete') {
-		delete _state[patch.prop]
+		delete (parent as any)[patch.prop]
 	}
-	if (patch.op === 'method') {
+	if (patch.op === 'arrayMethod') {
 		try {
-			patch.target.apply(patch.thisArg, patch.args)
+			let self = patch.thisArg.slice()
+			
+			patch.target.apply(self, patch.args)
+			const key = patch.path.at(-1)!.value
+			states.at(-1)[key] = self
+
 		} catch (e) {
 			console.error('error', e)
 		}

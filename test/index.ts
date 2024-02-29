@@ -3,7 +3,7 @@ import * as p from '../lib/index'
 import assert from 'node:assert'
 
 
-test('Example', () => {
+test('basic', () => {
 
     let state = {
         schedules: [
@@ -68,6 +68,8 @@ test('Example', () => {
     (spread as any).newProperty = true;
     assert.equal((spread as any).newProperty, true, 'Assigning to a non proxy here, so it takes affect, but will not actually affect the original');
     (spread.schedule_versions[0] as any).newProperty = true;
+
+    assert(p.hasOriginal(spread.schedule_versions[0]))
     assert.equal((spread.schedule_versions[0] as any).newProperty, undefined, 'items within version array are still proxies');
 
 
@@ -85,5 +87,28 @@ test('Example', () => {
   assert.notEqual( updated.schedules[0].schedule_id, 1, 'Mutation applied' )
   assert.equal( updated.schedules[0].schedule_versions[0].schedule_id, 1, 'Reference to immutable property, mutation ignored')
   assert.notEqual( updated.schedules[0].schedule_versions[0].schedule_version_id, 2, 'Mutation applied')
+  
+})
+
+test('recorder', () => {
+  let state = { a: 1, b: [ 1, 2, 3 ], c: [ { a: 1 }, { a: 2 }, { a: 3 } ] }
+
+  let { proxy, patches, path } = p.recorder(state)
+
+  let original = proxy.b.sort( (a,b) => b - a )
+
+  assert.deepEqual(original, [1,2,3], 'unchanged as yet')
+
+  assert(patches.length == 1)
+  assert(patches[0].op === 'arrayMethod')
+  assert(patches[0].target.name === 'sort')
+  assert(patches[0].args.length === 1)
+  assert(patches[0].args[0].toString() === `${(a,b) => b - a}`)
+
+  const updated = p.applyPatches(patches, state)
+
+  assert.deepEqual(updated.b, [3,2,1])
+  assert.deepEqual(state.b, [1,2,3])
+  assert.strictEqual(original, state.b)
   
 })
