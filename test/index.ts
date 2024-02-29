@@ -93,7 +93,7 @@ test('basic', () => {
 test('recorder', () => {
   let state = { a: 1, b: [ 1, 2, 3 ], c: [ { a: 1 }, { a: 2 }, { a: 3 } ] }
 
-  let { proxy, patches, path } = p.recorder(state)
+  let { proxy, patches } = p.recorder(state)
 
   let original = proxy.b.sort( (a,b) => b - a )
 
@@ -111,4 +111,46 @@ test('recorder', () => {
   assert.deepEqual(state.b, [1,2,3])
   assert.strictEqual(original, state.b)
   
+})
+
+test('array methods: map', () => {
+  let state = { 
+    a: 1, simple: [ 1, 2, 3 ], complex: [ { a: 1 }, { a: 2 }, { a: 3 } ] 
+  }
+
+  {
+    let updated = p.update(state, x => {
+      {
+        const out = x.simple.map( x => x * 2 )
+        assert.deepEqual(out, [2,4,6], 'map simple')
+      }
+  
+      {
+        const out = x.complex.map( x => {
+          x.a *= 2
+          return x
+        } )
+        assert.deepEqual(out, [ { a: 1 }, { a: 2 }, { a: 3 } ], 'map complex: no modifications in update')
+      }
+  
+    })
+    assert.deepEqual(updated.complex, [ { a: 2 }, { a: 4 }, { a: 6 } ], 'map complex: modification occurred after update')
+  }
+
+  {
+    let updated = p.update(state, x => {
+   
+      {
+        const out = x.complex.map( x => {
+          
+          return { ...x, a: 100 }
+        })
+        assert.deepEqual(out, [ { a: 100 }, { a: 100 }, { a: 100 } ], 'map complex: new objects returned in update')
+
+        x.complex = out
+      }
+  
+    })
+    assert.deepEqual(updated.complex, [ { a: 100 }, { a: 100 }, { a: 100 } ], 'map complex: replacing list successful')
+  }
 })

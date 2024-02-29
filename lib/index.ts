@@ -118,12 +118,16 @@ export function recorder<T extends object>(
 
 					return ((thisArg2 ?? thisArg) as any[])[methodName as 'forEach']( (x, i, list) => {
 
-						const recording = recorder(x, patches, path.slice(0, -1).concat({
-							op: 'get',
-							value: `${i}`,
-						}))
-
-						visitor(recording.proxy, i, list)
+						if ( Object(x) === x ) {
+							const recording = recorder(x, patches, path.slice(0, -1).concat({
+								op: 'get',
+								value: `${i}`,
+							}))
+	
+							return visitor(recording.proxy, i, list)
+						} else {
+							return visitor(x, i, list)
+						}
 					})
 				}
 			} else if (typeof target === 'object') {
