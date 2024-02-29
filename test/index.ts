@@ -193,3 +193,24 @@ test('array methods: find', () => {
     assert.deepEqual(updated.complex,  [ { a: 4 }, { a: 4 }, { a: 3 } ], 'mutation occurred afterwards')
   }
 })
+
+test('mutation: custom clone', () => {
+  let state = { 
+    a: 1, simple: [ 1, 2, 3 ], complex: [ { a: 1 }, { a: 2 }, { a: 3 } ] 
+  }
+
+  let updated = p.update(state, state => {
+
+    state.simple = [4,5,6]
+    state.complex[2].a = 40000
+
+  }, {
+    // mutable
+    clone: x => x
+  })
+
+
+  assert.strictEqual(state, updated)
+  assert.strictEqual(state.simple, updated.simple)
+  assert.strictEqual(state.complex, updated.complex)
+})

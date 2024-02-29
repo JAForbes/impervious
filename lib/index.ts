@@ -160,7 +160,7 @@ function clone(child:any):any{
 }
 
 export function applyPatch<T extends object>(patch: Patch, state: T, cloneFn=clone): T {
-	let parent = clone(state) as any
+	let parent = cloneFn(state) as any
 	state = parent
 	let states: any[] = []
 	for (let op of patch.path) {
@@ -175,7 +175,7 @@ export function applyPatch<T extends object>(patch: Patch, state: T, cloneFn=clo
 				child = {}
 			}
 		} else {
-			child = clone(child)
+			child = cloneFn(child)
 		}
 
 		parent[op.value] = child
@@ -194,7 +194,7 @@ export function applyPatch<T extends object>(patch: Patch, state: T, cloneFn=clo
 	}
 	if (patch.op === 'arrayMethod') {
 		try {
-			let self = clone(patch.thisArg)
+			let self = cloneFn(patch.thisArg)
 			
 			patch.target.apply(self, patch.args)
 			const key = patch.path.at(-1)!.value
@@ -209,7 +209,7 @@ export function applyPatch<T extends object>(patch: Patch, state: T, cloneFn=clo
 
 export function applyPatches<T extends object>(patches: Patch[], state: T, cloneFn=clone): T {
 	for (let patch of patches) {
-		state = applyPatch(patch, state)
+		state = applyPatch(patch, state, cloneFn)
 	}
 
 	return state

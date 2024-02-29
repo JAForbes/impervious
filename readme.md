@@ -82,11 +82,10 @@ This library is for easily immutably updating well structured data, no more, no 
 ### `impervious.update`
 
 ```typescript
-function update<T extends object>(state: T, f: (x: T) => void): T
+function update<T extends object>(state: T, f: (x: T) => void, options: { clone?: <T>(x:T) => T }): T
 ```
 
 The only export you need to use the library, pass in `state` and an update function `f`, and you will get back a new `state` object where every mutation within the update function was performed immutably.
-
 
 ## Advanced API
 
@@ -143,7 +142,7 @@ And you can "unwrap" the proxy via `getOriginal(value)`
 ### `applyPatch`
 
 ```typescript
-export function applyPatch<T extends object>(patch: Patch, state: T): T
+export function applyPatch<T extends object>(patch: Patch, state: T, cloneFn?: <T>(x:T) => T): T
 ```
 
 Apply a single `Patch` to `state`, returns a new `state` object of the same type `T`
@@ -151,10 +150,17 @@ Apply a single `Patch` to `state`, returns a new `state` object of the same type
 ### `applyPatches`
 
 ```typescript
-export function applyPatches<T extends object>(patches: Patch[], state: T): T
+export function applyPatches<T extends object>(patches: Patch[], state: T, cloneFn?: <T>(x:T) => T): T
 ```
 
 Apply a list of `Patch`'s to `state`, returns a new `state` object of the same type `T`
+
+## Mutation / Clone
+
+You can customize how the library shallow clones objects and arrays, if you set `options.clone` to `x => x` *`impervious`* will use mutation which can give you a big perf boost if you aren't needing immutable for a specific part of your app but just want controlled mutation.
+
+You may want to use the lower level `recorder` api, to generate your own undo/redo system but you don't mind if `applyPatches` actually mutates the record.
+
 
 ## Contributing
 
