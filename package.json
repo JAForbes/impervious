@@ -10,7 +10,7 @@
 	"scripts": {
 		"test": "node --import tsx --test test/*.ts",
 		"dev": "node --watch --import tsx --test test/*.ts",
-		"build:bundle": "esbuild lib/index.ts --bundle --format=esm --sourcemap  --allow-overwrite --outfile=./dist/superhistory.esm.js",
+		"build:bundle": "esbuild lib/index.ts --bundle --format=esm --sourcemap  --allow-overwrite --outfile=./dist/impervious.esm.js",
 		"build:types": "npx tsc -p tsconfig.test.json && npx tsc",
 		"build:test": "npm run test",
 		"build:clear": "rm -fr ./dist",
