@@ -103,7 +103,7 @@ test('recorder', () => {
   assert(patches[0].op === 'arrayMethod')
   assert(patches[0].target.name === 'sort')
   assert(patches[0].args.length === 1)
-  assert(patches[0].args[0].toString() === `${(a,b) => b - a}`)
+  assert.equal(patches[0].args[0].toString(), `${(a:number,b:number) => b - a}`)
 
   const updated = p.applyPatches(patches, state)
 

@@ -8,8 +8,7 @@
     "noEmit": true,
     "outDir": "./dist",
     "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "target": "ES2022"
+    "esModuleInterop": true
   },
   "include": ["test/**.ts"],
 }
