@@ -68,7 +68,13 @@ test('Example', () => {
     (spread as any).newProperty = true;
     assert.equal((spread as any).newProperty, true, 'Assigning to a non proxy here, so it takes affect, but will not actually affect the original');
     (spread.schedule_versions[0] as any).newProperty = true;
-    assert.equal((spread.schedule_versions[0] as any).newProperty, undefined, 'items within version array are still proxies')
+    assert.equal((spread.schedule_versions[0] as any).newProperty, undefined, 'items within version array are still proxies');
+
+
+    assert.throws(() => {
+      (x as any).a.b.c.d.e = 2
+    }, /Cannot read properties of undefined/, 'Cannot reference data that does not exist')
+
     return x
   })
 

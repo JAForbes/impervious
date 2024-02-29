@@ -15,13 +15,18 @@ export type Patch =
 
 type ProxyAny = any
 type OriginalAny = any
-export const originals = new WeakMap<ProxyAny, OriginalAny>()
+
+
+const originals = new WeakMap<ProxyAny, OriginalAny>()
+
+export const hasOriginal = (x:any) => originals.has(x)
+export const getOriginal = (x:any) => originals.get(x)
 
 export function recorder<T extends object>(
 	state: T,
 	patches: Patch[] = [],
 	path: Path = [],
-) {
+) : { proxy: T, patches: Patch[], path: Path } {
 	// lie and say proxy is T, kind of the point of a proxy
 	const proxy: T = new Proxy(state, {
 		get(target, prop, receiver) {
@@ -171,7 +176,7 @@ export function applyPatches<T extends object>(patches: Patch[], state: T): T {
 	return state
 }
 
-export function update<T extends object>(state: T, f: (x: T) => void) {
+export function update<T extends object>(state: T, f: (x: T) => void): T {
 	const { proxy, patches } = recorder(state)
 
 	f(proxy)
