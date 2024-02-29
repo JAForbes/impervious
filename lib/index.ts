@@ -194,7 +194,7 @@ export function applyPatch<T extends object>(patch: Patch, state: T): T {
 	}
 	if (patch.op === 'arrayMethod') {
 		try {
-			let self = patch.thisArg.slice()
+			let self = clone(patch.thisArg)
 			
 			patch.target.apply(self, patch.args)
 			const key = patch.path.at(-1)!.value
