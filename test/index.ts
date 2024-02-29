@@ -1,5 +1,6 @@
 import test from 'node:test'
 import * as p from '../lib/index'
+import assert from 'node:assert'
 
 
 test('Example', () => {
@@ -46,15 +47,25 @@ test('Example', () => {
       schedule_version_id: x.schedules[0].schedule_versions[0].schedule_version_id
     } as any);
 
-    // (x as any).people = ['James'];
-    // (x as any).people.shift();
+    (x as any).people = ['James'];
+    assert.throws(() => {
+      (x as any).people.shift();
+    },/Cannot read properties of undefined/)
     
-    // x.schedule_versions.forEach( x => {
-    //   x.schedule_id++
-    // })
+
+    x.schedules.forEach( x => {
+      x.schedule_id = Math.random()
+      x.schedule_versions.forEach( y => {
+        y.schedule_id = x.schedule_id
+        y.schedule_version_id = Math.random()
+
+      })
+    })
     return x
   })
   console.timeEnd('example')
+
+  assert.deepEqual( (updated as any).people, [ 'James' ])
 
   console.log(updated)
   console.log(updated.schedules[0].schedule_versions)

@@ -12,7 +12,7 @@ A simple and opionated proxy for state management.
 
 Within a call to `update` any changes you make to the proxy are not applied.  We simply record the mutations and apply them in order.
 
-The reasoning behind this is that it is extroadinarily difficult to make a JS proxy truly imitate a JS object.  Instead of treading carefully into the uncanny valley we instead acknowledge the proxy can never truly fake the real thing, instead it is a nice affordance to make complex immutable update feel mutable.
+The reasoning behind this is that it is extraordinarily difficult to make a JS proxy truly imitate a JS object.  Instead of treading carefully into the uncanny valley we instead acknowledge the proxy can never truly fake the real thing, instead it is a nice affordance to make complex immutable update feel mutable.
 
 An **impervious** proxy has very predictable and limited behaviour.  By way of example, here is a list of things impervious doesn't even try to imitate. 
 
