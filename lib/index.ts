@@ -15,7 +15,7 @@ const originals = new WeakMap<ProxyAny, OriginalAny>();
 
 export function recorder<T extends object>(state:T, patches: Patch[] = [], path: Path = []) {
   
-  // lie and say proxy is T, kind of the point of a proxy
+  	// lie and say proxy is T, kind of the point of a proxy
 	const proxy: T = new Proxy(state, {
 		get(target, prop, receiver) {
 			const got = Reflect.get(target, prop, receiver)
@@ -29,13 +29,13 @@ export function recorder<T extends object>(state:T, patches: Patch[] = [], path:
 			).proxy
 		},
 		set(_, prop, value) {
-      // if they assign a proxy, assign the "real" value
-      // to prevent infinite loops
-      if (originals.has(value)) {
-        value = originals.get(value)
-      }
-      // not sure about this one
-      if ( typeof prop === 'symbol') {
+			// if they assign a proxy, assign the "real" value
+			// to prevent infinite loops
+			if (originals.has(value)) {
+				value = originals.get(value)
+			}
+			// not sure about this one
+			if ( typeof prop === 'symbol') {
 				return false
 			}
 			patches.push({
