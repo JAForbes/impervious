@@ -22,6 +22,25 @@ const originals = new WeakMap<ProxyAny, OriginalAny>()
 export const hasOriginal = (x:any) => originals.has(x)
 export const getOriginal = (x:any) => originals.get(x)
 
+const supportedPureArrayMethods = new Set(['at', 'slice', 'concat', "entries", "includes", "join", "keys", "indexOf", "lastIndexOf", "toLocaleString", "toReversed", "toSorted", "toSpliced", "toString", "values"])
+const supportedMutationArrayMethods = new Set(["fill", "pop", "push", "shift", "unshift", "splice", "sort", "reverse", "with"])
+const supportedIterationArrayMethods = new Set(["forEach", "find", "filter", "findIndex", "findLast", "findLastIndex", "every", "some", "map", "flatMap"])
+
+const returnValues = new Map<string, (...args: any[]) => any>(Object.entries({
+	
+	// mutation array methods
+	fill: x => x,
+	pop: xs => xs.at(-1),
+	push: xs => xs.length,
+	shift: xs => xs.at(0),
+	unshift: xs => xs.length,
+	splice: (xs, start, deleteCount) => xs.slice(start, deleteCount),
+	sort: xs => xs,
+	reverse: xs => xs,
+	with: xs => xs,
+
+}))
+
 export function recorder<T extends object>(
 	state: T,
 	patches: Patch[] = [],
@@ -78,10 +97,9 @@ export function recorder<T extends object>(
 			}
 
 			if (Array.isArray(thisArg)) {
-				if (methodName === 'at' || methodName === 'indexOf' || methodName === 'slice' ) {
+				if (supportedPureArrayMethods.has(methodName)) {
 					return Reflect.apply(target as any, thisArg, argumentsList)
-				}
-				else if (methodName === 'unshift' || methodName === 'shift' ) {
+				} else if ( supportedMutationArrayMethods.has(methodName) ) {
 					patches.push({
 						op: 'method',
 						path,
@@ -89,11 +107,16 @@ export function recorder<T extends object>(
 						thisArg,
 						target: target as any,
 					})
-					return argumentsList.at(-1)
-				} else if (methodName === 'forEach') {
+
+					if ( returnValues.has(methodName) ) {
+						return returnValues.get(methodName)!(thisArg, ...argumentsList)
+					}
+					throw new Error('Unexpected missing return value for methodName' + methodName)
+				} else if (supportedIterationArrayMethods.has(methodName)) {
+
 					const [visitor, thisArg2] = argumentsList
 
-					return ((thisArg2 ?? thisArg) as any[]).forEach( (x, i, list) => {
+					return ((thisArg2 ?? thisArg) as any[])[methodName as 'forEach']( (x, i, list) => {
 
 						const recording = recorder(x, patches, path.slice(0, -1).concat({
 							op: 'get',
@@ -102,19 +125,9 @@ export function recorder<T extends object>(
 
 						visitor(recording.proxy, i, list)
 					})
-				} else if (methodName === 'push') {
-				} else if (methodName === 'pop') {
-				} else if (methodName === 'splice') {
-				} else if (methodName === 'slice') {
-				} else if (methodName === 'at') {
-				} else if (methodName === 'map') {
-				} else if (methodName === 'flatMap') {
-				} else if (methodName === 'flat') {
-				} else if (methodName === 'filter') {
-				} else if (methodName === 'every') {
-				} else if (methodName === 'some') {
 				}
 			} else if (typeof target === 'object') {
+				throw new Error('Unexpected method call ' + methodName + 'on simple object.')
 			}
 
 			return null

@@ -57,6 +57,7 @@ An **`impervious`** proxy has very predictable and limited behaviour.  By way of
 - If you call `shift` you will mutate the list after the patch, but `shift` will always return the first item within that update function.
 - If you assign a property, it won't be there until after the patch is complete.
 - *`impervious`* only works with plain old JS objects, no sets, or maps etc
+- If you reverse or sort an array, you will get back the unmodified array within the patch
 
 Think of the object you are interacting with as a completely immutable frozen object.  Any change you make will not be visible within that transaction.  But all changes / operations are recorded and are applied naively after the patch is complete.
 
