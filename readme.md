@@ -38,7 +38,7 @@ state = impervious.update( state, x => {
 
 ## Why? ⚙️
 
-In the opinion of this author proxies are a very leaky abstraction.  It is hard to achieve a perfect mimick of a real JS object, and doing so adds to the complexity of the library and hurts performance.  It also makes it harder to explain to a team what patterns to use and what patterns should be avoided.
+Proxies are a very leaky abstraction.  It is hard to achieve a perfect mimick of a real JS object, and doing so adds to the complexity of the library and hurts performance.  It also makes it harder to explain to a team what patterns to use and what patterns should be avoided.
 
 While other state proxy libraries tend to support Vanilla.js™️ (and other frameworks) their documentation and API tends to have a bias towards React's API which makes it harder to learn and use outside of a React context.
 
