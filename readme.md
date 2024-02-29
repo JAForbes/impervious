@@ -21,12 +21,18 @@ let state = {
 state = impervious.update( state, x => {
 	x.users.push({ id: 2, name: 'John' })
 
-	// will work, but typescript won't be happy :)
+	console.log(x.users)
+	// logs [{ id: 1, name: 'James' }]
+
+	// mutation is recorded, but typescript won't be happy :)
 	(state as any).willWork = true
 
 	// will crash, state.a is undefined
 	state.a.b.c.d = 4
 })
+
+console.log(state.users)
+// logs [{ id: 1, name: 'James' }, { id: 2, name: 'John' }]
 ```
 
 
