@@ -15,7 +15,7 @@ export type Patch =
 
 type ProxyAny = any
 type OriginalAny = any
-const originals = new WeakMap<ProxyAny, OriginalAny>()
+export const originals = new WeakMap<ProxyAny, OriginalAny>()
 
 export function recorder<T extends object>(
 	state: T,
@@ -26,7 +26,9 @@ export function recorder<T extends object>(
 	const proxy: T = new Proxy(state, {
 		get(target, prop, receiver) {
 			const got = Reflect.get(target, prop, receiver)
+
 			if (got == null || Object(got) !== got || typeof prop === 'symbol') {
+				
 				return got
 			}
 			return recorder(got, patches, path.concat({ op: 'get', value: prop }))

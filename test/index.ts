@@ -21,12 +21,11 @@ test('Example', () => {
         ],
     }
 
-    console.time('example')
   const updated = p.update(state, x => {
    
     if (x.schedules[0].schedule_name === 'Cool') {
       x.schedules[0].schedule_name = 'Wow'
-      console.log(x.schedules[0].schedule_name)
+      assert.equal(x.schedules[0].schedule_name, 'Cool', 'mutation deferred')
     }
     
     if ('schedule_versions' in x.schedules[0] ){
@@ -61,12 +60,24 @@ test('Example', () => {
 
       })
     })
+
+    const ref = x.schedules[0]
+
+    const spread = { ...ref };
+
+    (spread as any).newProperty = true;
+    assert.equal((spread as any).newProperty, true, 'Assigning to a non proxy here, so it takes affect, but will not actually affect the original');
+    (spread.schedule_versions[0] as any).newProperty = true;
+    assert.equal((spread.schedule_versions[0] as any).newProperty, undefined, 'items within version array are still proxies')
     return x
   })
-  console.timeEnd('example')
+
+  assert.notEqual((updated.schedules[0] as any), true, 'Mutation of spread did nothing')
+  assert.equal((updated.schedules[0].schedule_versions[0] as any).newProperty, true, 'Mutation of proxy was applied')
 
   assert.deepEqual( (updated as any).people, [ 'James' ])
-
-  console.log(updated)
-  console.log(updated.schedules[0].schedule_versions)
+  assert.notEqual( updated.schedules[0].schedule_id, 1, 'Mutation applied' )
+  assert.equal( updated.schedules[0].schedule_versions[0].schedule_id, 1, 'Reference to immutable property, mutation ignored')
+  assert.notEqual( updated.schedules[0].schedule_versions[0].schedule_version_id, 2, 'Mutation applied')
+  
 })
