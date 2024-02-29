@@ -49,7 +49,7 @@ This library is for easily immutably updating well structured data, no more, no 
 ### Quick Start
 
 ```bash
-npm install impervious
+npm install impervious@next
 ```
 
 ```typescript
