@@ -1,6 +1,6 @@
 # impervious
 
-A simple and opionated proxy for state management.
+A simple and opinionated proxy for state management.
 
 ## What
 
