@@ -154,3 +154,42 @@ test('array methods: map', () => {
     assert.deepEqual(updated.complex, [ { a: 100 }, { a: 100 }, { a: 100 } ], 'map complex: replacing list successful')
   }
 })
+
+test('array methods: find', () => {
+  let state = { 
+    a: 1, simple: [ 1, 2, 3 ], complex: [ { a: 1 }, { a: 2 }, { a: 3 } ] 
+  }
+
+  p.update(state, state => {
+    const found = state.complex.find( x => x.a === 2)
+
+    assert.deepEqual(found, { a: 2 }, 'find works')
+  })
+
+  {
+    const updated = p.update(state, state => {
+      state.complex = []
+  
+      const found = state.complex.find( x => x.a === 2)
+  
+      assert.deepEqual(found, { a: 2 }, 'find works even when list emptied')
+    })
+    assert.deepEqual(updated.complex, [], 'mutation occurred afterwards')
+  }
+
+  {
+    const updated = p.update(state, state => {
+   
+  
+      const found = state.complex.find( x => {
+
+        x.a = 4
+        return x.a === 2
+      })
+  
+      assert.deepEqual(found, { a: 2 }, 'find works even when list emptied')
+      assert.deepEqual(state.complex, [ { a: 1 }, { a: 2 }, { a: 3 } ])
+    })
+    assert.deepEqual(updated.complex,  [ { a: 4 }, { a: 4 }, { a: 3 } ], 'mutation occurred afterwards')
+  }
+})
