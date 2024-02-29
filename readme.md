@@ -4,6 +4,32 @@
 
 > ⚠️ Note this library is very new and likely has bugs.  We don't recommend you using this in production until we've dogfooded it a bit more.
 
+
+## Quick Start
+
+```bash
+npm install impervious@next
+```
+
+```typescript
+import * as impervious from 'impervious'
+
+let state = {
+    users: [{ id: 1, name: 'James' }]
+}
+
+state = impervious.update( state, x => {
+    x.users.push({ id: 2, name: 'John' })
+
+    // will work, but typescript won't be happy :)
+    (state as any).willWork = true
+
+    // will crash, state.a is undefined
+    state.a.b.c.d = 4
+})
+```
+
+
 ## What? 😵
 
 *`impervious`* wraps a javascript object in a proxy in order to track changes and to make immutable updates easier to write.
@@ -45,30 +71,6 @@ While it is possible to have a proxy that recurses infinitely and permits access
 This library is for easily immutably updating well structured data, no more, no less.
 
 ## API
-
-### Quick Start
-
-```bash
-npm install impervious@next
-```
-
-```typescript
-import * as impervious from 'impervious'
-
-let state = {
-    users: [{ id: 1, name: 'James' }]
-}
-
-state = impervious.update( state, x => {
-    x.users.push({ id: 2, name: 'John' })
-
-    // will work, but typescript won't be happy :)
-    (state as any).willWork = true
-
-    // will crash, state.a is undefined
-    state.a.b.c.d = 4
-})
-```
 
 ### `impervious.update`
 
