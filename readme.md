@@ -120,6 +120,12 @@ An internal util that wraps an object in a proxy.  The returned proxy is typed a
 
 As you access child properties you will get back a `recorder` instance except if the value you are accessing is a primative value, or a symbol.
 
+Whenever we encounter a primative value or a symbol we immediately convert the proxy into the real concrete value at the time of the start of the transaction.
+
+This means we don't run into weird issues with equality comparisons for primative values which is important for e.g. checking if a value equates to an identifier or a name.
+
+But it means if you are using a complex object as some kind of sentinel value in a comparison within an update then you will get false negatives.  We recommend to instead use a symbol or a primative value in these cases but if you can't do that for some reason you can call `getOriginal(target)` to get the real memory reference for equality checks.
+
 The patches array returned is mutably updated by each recursively created recorder so you can always inspect the mutations performed from any recorder child instance by inspecting the root `patches` array.
 
 The `path` is currently just an object representation of property names referenced.  But in future we may include function calls that should return a proxy such as `.at(0)`.
