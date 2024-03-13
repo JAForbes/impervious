@@ -214,3 +214,24 @@ test('mutation: custom clone', () => {
   assert.strictEqual(state.simple, updated.simple)
   assert.strictEqual(state.complex, updated.complex)
 })
+
+test('replace', () => {
+  let state = { 
+    a: 1, simple: [ 1, 2, 3 ], complex: [ { a: 1 }, { a: 2 }, { a: 3 } ] 
+  }
+
+  function f(x: { a: number }): void {
+    p.replace(x, { a: 100 })
+  }
+  
+  let updated = p.update(
+    state,
+    x => {
+      let ref = x.complex[0]
+
+      f(ref)
+    }
+  )
+
+  assert.equal(updated.complex[0].a, 100)
+})

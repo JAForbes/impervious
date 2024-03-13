@@ -41,6 +41,12 @@ const returnValues = new Map<string, (...args: any[]) => any>(Object.entries({
 
 }))
 
+const replacementSymbol = Symbol('impervious/replace')
+
+export function replace<T extends object>(source: T, replacement: T): void {
+	(source as any)[replacementSymbol] = replacement
+}
+
 export function recorder<T extends object>(
 	state: T,
 	patches: Patch[] = [],
@@ -64,6 +70,17 @@ export function recorder<T extends object>(
 			if (originals.has(value)) {
 				value = originals.get(value)
 			}
+
+			if (prop === replacementSymbol) {
+				patches.push({
+					path: path.slice(0, -1),
+					prop: path.at(-1)!.value,
+					value,
+					op: 'set'
+				})
+				return true
+			}
+
 			// not sure about this one
 			if (typeof prop === 'symbol') {
 				return false
