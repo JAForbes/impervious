@@ -44,7 +44,9 @@ const returnValues = new Map<string, (...args: any[]) => any>(Object.entries({
 const replacementSymbol = Symbol('impervious/replace')
 
 export function replace<T extends object>(source: T, replacement: T): void {
-	(source as any)[replacementSymbol] = replacement
+	if (originals.has(source)) {
+		(source as any)[replacementSymbol] = replacement
+	}
 }
 
 export function recorder<T extends object>(
