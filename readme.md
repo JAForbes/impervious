@@ -26,13 +26,26 @@ state = impervious.update( state, x => {
 
 	// mutation is recorded, but typescript won't be happy :)
 	(state as any).willWork = true
-
-	// will crash, state.a is undefined
-	state.a.b.c.d = 4
 })
 
 console.log(state.users)
 // logs [{ id: 1, name: 'James' }, { id: 2, name: 'John' }]
+```
+
+If your patch throws an exception, no modifications to the state will occur:
+
+```typescript
+try {
+	state = impervious.update( state, x => {
+		// will crash, state.a is undefined
+		state.a.b.c.d = 4
+	})
+} catch (e) {
+	console.error('Could not patch!', e)
+}
+
+state
+// { users: [{ id: 1, name: 'James' }, { id: 2, name: 'John' }] }
 ```
 
 
@@ -40,7 +53,9 @@ console.log(state.users)
 
 *`impervious`* wraps a javascript object in a proxy in order to track changes and to make immutable updates easier to write.
 
-*`impervious`* is far stricter than other proxy state management libries:  Any modifications within a patch are deferred until after the patch is complete, and there is no simulation within the patch function of your modifications at all.
+*`impervious`* is far stricter than other proxy state management libries:  Any modifications within a patch are deferred until after the patch is complete, and there is no simulation within the patch function of your modifications at all.  If you update a value, that value will not appear to be changed *within* the patch.
+
+Unlike other similar libraries, *`impervious`* does not try to create the illusion that the proxy is actually the underlying object, it is simply a mutation recorder.  Whatever modifications you perform on the proxy it will record and replay them in the same order that they were performed.  This stops the proxy uncanny valley arms race and just keeps things extremely predictable and obvious.
 
 ## Why? ⚙️
 
@@ -60,12 +75,12 @@ An **`impervious`** proxy has very predictable and limited behaviour.  By way of
 
 - If you `delete` a property from an object, the deleted property will still be there during the update
 - If you `push` an item into a list, it won't be there until after the patch is complete
-- If you call `shift` you will mutate the list after the patch, but `shift` will always return the first item within that update function.
+- If you call `shift` you will mutate the list after the patch, but `shift` will always return the first item within that update function - no matter how many times you call it.
 - If you assign a property, it won't be there until after the patch is complete.
 - *`impervious`* only works with plain old JS objects, no sets, or maps etc
 - If you reverse or sort an array, you will get back the unmodified array within the patch
 
-Think of the object you are interacting with as a completely immutable frozen object.  Any change you make will not be visible within that transaction.  But all changes / operations are recorded and are applied naively after the patch is complete.
+Think of the object you are interacting with as a completely immutable state taken at a snapshot in time.  Any change you make will not be visible within that transaction.  But all changes / operations are recorded and are applied naively after the patch is complete.
 
 This simple rule makes the internal logic so much simpler, it is also simple to internalize than the numerous edge cases that would otherwise occur.
 
