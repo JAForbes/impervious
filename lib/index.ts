@@ -18,9 +18,13 @@ type OriginalAny = any
 
 
 const originals = new WeakMap<ProxyAny, OriginalAny>()
+const paths = new WeakMap<ProxyAny, Path>()
 
 export const hasOriginal = (x:any) => originals.has(x)
 export const getOriginal = (x:any) => originals.get(x)
+
+export const hasPath = (x:any) => paths.has(x)
+export const getPath = (x:any) => paths.get(x)
 
 const supportedPureArrayMethods = new Set(['at', 'slice', 'concat', "entries", "includes", "join", "keys", "indexOf", "lastIndexOf", "toLocaleString", "toReversed", "toSorted", "toSpliced", "toString", "values"])
 const supportedMutationArrayMethods = new Set(["fill", "pop", "push", "shift", "unshift", "splice", "sort", "reverse", "with"])
