@@ -173,6 +173,7 @@ export function recorder<T extends object>(
 	})
 
 	originals.set(proxy, state)
+	paths.set(proxy, path)
 	return { proxy, patches, path }
 }
 
