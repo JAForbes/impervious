@@ -19,12 +19,16 @@ type OriginalAny = any
 
 const originals = new WeakMap<ProxyAny, OriginalAny>()
 const paths = new WeakMap<ProxyAny, Path>()
+const parents = new WeakMap<ProxyAny, ProxyAny>()
 
 export const hasOriginal = (x:any) => originals.has(x)
 export const getOriginal = (x:any) => originals.get(x)
 
 export const hasPath = (x:any) => paths.has(x)
 export const getPath = (x:any) => paths.get(x)
+
+export const hasParent = (x:any) => parents.has(x)
+export const getParent = (x:any) => parents.get(x)
 
 const supportedPureArrayMethods = new Set(['at', 'slice', 'concat', "entries", "includes", "join", "keys", "indexOf", "lastIndexOf", "toLocaleString", "toReversed", "toSorted", "toSpliced", "toString", "values"])
 const supportedMutationArrayMethods = new Set(["fill", "pop", "push", "shift", "unshift", "splice", "sort", "reverse", "with"])
@@ -67,7 +71,11 @@ export function recorder<T extends object>(
 				
 				return got
 			}
-			return recorder(got, patches, path.concat({ op: 'get', value: prop }))
+			const recording = recorder(got, patches, path.concat({ op: 'get', value: prop }))
+
+			parents.set(recording.proxy, proxy)
+
+			return recording
 				.proxy
 		},
 		set(_, prop, value) {
@@ -146,6 +154,8 @@ export function recorder<T extends object>(
 								op: 'get',
 								value: `${i}`,
 							}))
+
+							parents.set(recording.proxy, proxy)
 	
 							return visitor(recording.proxy, i, list)
 						} else {
