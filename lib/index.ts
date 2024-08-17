@@ -30,6 +30,10 @@ export const getPath = (x:any) => paths.get(x)
 export const hasParent = (x:any) => parents.has(x)
 export const getParent = (x:any) => parents.get(x)
 
+let lastKeyAccessed: string | symbol | null = null;
+
+export const getLastKeyAccessed = () => lastKeyAccessed
+
 const supportedPureArrayMethods = new Set(['at', 'slice', 'concat', "entries", "includes", "join", "keys", "indexOf", "lastIndexOf", "toLocaleString", "toReversed", "toSorted", "toSpliced", "toString", "values"])
 const supportedMutationArrayMethods = new Set(["fill", "pop", "push", "shift", "unshift", "splice", "sort", "reverse", "with"])
 const supportedIterationArrayMethods = new Set(["forEach", "find", "filter", "findIndex", "findLast", "findLastIndex", "every", "some", "map", "flatMap"])
@@ -57,6 +61,7 @@ export function replace<T extends object>(source: T, replacement: T): void {
 	}
 }
 
+
 export function recorder<T extends object>(
 	state: T,
 	patches: Patch[] = [],
@@ -66,9 +71,9 @@ export function recorder<T extends object>(
 	const proxy: T = new Proxy(state, {
 		get(target, prop, receiver) {
 			const got = Reflect.get(target, prop, receiver)
+			lastKeyAccessed = prop
 
 			if (got == null || Object(got) !== got || typeof prop === 'symbol') {
-				
 				return got
 			}
 			const recording = recorder(got, patches, path.concat({ op: 'get', value: prop }))
